@@ -1,21 +1,41 @@
 %% Name: Jose Aries E. De Los Santos
-%% Math 171 Exercise 11
 clear
 clc
 close all
+
+%%Construct Forward Euler Method function
+function [t, y] = forward_euler(y0, h, N, t, f)
+    y = zeros(1, N); % Preallocate y for speed
+    y(:,1) = y0;
+    for i = 1:N-1
+        y(:,i+1) = y(:,i) + h * f(t(:,i), y(:,i));
+    end
+end
+
+%%Backward Euler Method via Fixed Point Iteration
+function [t,y] = backward_euler(y0, h, N, t, f)
+    y = zeros(1, N); % Preallocate y for speed
+    y(1) = y0;
+    for i = 1:N-1
+        y(i+1) = (y(i) + h * t(i+1)) / (1 - h);
+    end
+end
+
+
 a=0; b=5; N=100; t = linspace(a,b,N); f = @(t,y) y+t; 
 ftrue = @(t) (-t-1)+exp(t); %Exact solution solved using an intergrating factor see pdf
-h = (t(2)-t(1)) ; ff  = @(x) x-y-h*f(t,y);
+h = (t(2)-t(1)) ; ff  = @(x) x-y-h*f(t,y); 
+y0 = 0; %Initial condition
 %%Forward euler method
-y1(:,1) = 0;
-for i=1:N-1
-    y1(:,i+1) = y1(:,i) + h*f(t(:,i),y1(:,i));
-end
+% y1(:,1) = 0;
+% for i=1:N-1
+%     y1(:,i+1) = y1(:,i) + h*f(t(:,i),y1(:,i));
+% end
 %% Backward euler method via Fixed Point Interation
-y2(1) = 0;
-for i=1:N-1
-    y2(i+1) = (y2(i)+h*t(i+1))/(1-h); %% Explicit Solution is shown in the PDF
-end
+% y2(1) = 0;
+% for i=1:N-1
+%     y2(i+1) = (y2(i)+h*t(i+1))/(1-h); %% Explicit Solution is shown in the PDF
+% end
 
 %% Backward euler method using fsolve
 y6(1) = 0;
@@ -24,8 +44,13 @@ for i=1:N-1
     y6(i+1) = fsolve(ff,y6(i));
 end
 
-%%Use ODE45
-% ODE45 solution
+%%Using Forward Euler Method
+[t1, y1] = forward_euler(y0, h, N, t, f);
+
+%%Using Backward Euler Method
+[t2, y2] = backward_euler(y0, h, N, t, f);
+
+%%Using ODE45
 [t_ode45, y_ode45] = ode45(f, [a b], 0);
 
 %%plotting
